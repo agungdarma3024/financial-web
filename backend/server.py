@@ -31,7 +31,7 @@ app.add_middleware(
 )
 
 # --- DATABASE MONGODB ---
-MONGO_URL = os.getenv("MONGO_URL")
+MONGO_URL = os.getenv("MONGODB_URI")
 client = MongoClient(MONGO_URL)
 db = client["dompet_lapangan"]
 users_collection = db["users"]
