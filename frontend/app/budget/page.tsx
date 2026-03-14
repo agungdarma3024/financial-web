@@ -32,7 +32,7 @@ export default function BudgetPage() {
     if (!activeEvent) return;
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`http://localhost:8000/api/categories/${activeEvent.id}`, {
+      const response = await axios.get(`https://financial-web-xi.vercel.app/api/categories/${activeEvent.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCategories(response.data);
@@ -60,7 +60,7 @@ export default function BudgetPage() {
     setSaving(true);
     try {
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:8000/api/categories", {
+      await axios.post("https://financial-web-xi.vercel.app/api/categories", {
         event_id: activeEvent?.id,
         name: name,
         allocated_amount: parseInt(amount)

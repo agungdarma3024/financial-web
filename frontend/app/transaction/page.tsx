@@ -38,7 +38,7 @@ export default function TransactionPage() {
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`http://localhost:8000/api/categories/${activeEvent.id}`, {
+        const response = await axios.get(`https://financial-web-xi.vercel.app/api/categories/${activeEvent.id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setCategories(response.data);
@@ -78,12 +78,12 @@ export default function TransactionPage() {
 
       if (type === 'expense') {
         formData.append("category_id", categoryId);
-        await axios.post("http://localhost:8000/api/expenses", formData, {
+        await axios.post("https://financial-web-xi.vercel.app/api/expenses", formData, {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
         });
       } else {
         formData.append("source", source);
-        await axios.post("http://localhost:8000/api/incomes", formData, {
+        await axios.post("https://financial-web-xi.vercel.app/api/incomes", formData, {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
         });
       }

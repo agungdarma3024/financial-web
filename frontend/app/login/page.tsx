@@ -26,7 +26,7 @@ export default function LoginPage() {
 
     try {
       // Tembak API Login (pastikan port 8000)
-      const response = await axios.post("http://localhost:8000/api/auth/login", {
+      const response = await axios.post("https://financial-web-xi.vercel.app/api/auth/login", {
         email: email,
         password: password
       });
