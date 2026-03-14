@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException, status, Depends, UploadFile, File, F
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from pymongo import MongoClient
 from passlib.context import CryptContext
 from bson.objectid import ObjectId
@@ -21,6 +21,7 @@ app = FastAPI(title="Backend Dompet Lapangan")
 @app.get("/")
 def home():
     return {"status": "Mesin Backend Dompet Lapangan Aktif 🚀", "pesan": "Silakan akses lewat aplikasi Frontend!"}
+
 # --- CORS ---
 app.add_middleware(
     CORSMiddleware,
@@ -57,14 +58,14 @@ SECRET_KEY = os.getenv("JWT_SECRET", "kunci_rahasia_dompet_lapangan_super_aman")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 7
 
-# --- MODEL DATA ---
+# --- MODEL DATA (EmailStr sudah diganti jadi str biasa) ---
 class UserRegister(BaseModel):
     name: str
-    email: EmailStr
+    email: str
     password: str
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 class EventCreate(BaseModel):
@@ -162,11 +163,8 @@ def create_expense(event_id: str = Form(...), category_id: str = Form(...), amou
         ext = receipt.filename.split('.')[-1]
         filename = f"exp_{datetime.now().strftime('%Y%m%d%H%M%S')}.{ext}"
         
-        # Baca isi file dan kirim ke Supabase
         file_bytes = receipt.file.read()
         supabase.storage.from_("receipts").upload(filename, file_bytes, {"content-type": receipt.content_type})
-        
-        # Buat link publik untuk foto tersebut
         receipt_url = f"{SUPABASE_URL}/storage/v1/object/public/receipts/{filename}"
 
     result = expenses_collection.insert_one({"event_id": event_id, "category_id": category_id, "amount": amount, "description": description, "date": date, "receipt_url": receipt_url, "created_at": datetime.utcnow()})
