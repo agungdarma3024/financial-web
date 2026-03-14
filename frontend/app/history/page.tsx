@@ -200,7 +200,7 @@ export default function HistoryPage() {
                             variant="outline" 
                             size="sm" 
                             className="text-xs font-semibold rounded-lg h-8 text-blue-600 border-blue-200 hover:bg-blue-50"
-                            onClick={() => setSelectedImage(`http://localhost:8000${trx.receipt_url}`)}
+                            onClick={() => setSelectedImage(trx.receipt_url)}
                           >
                             <ImageIcon className="w-3 h-3 mr-2" /> Lihat Bukti
                           </Button>
