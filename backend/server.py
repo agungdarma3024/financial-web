@@ -18,6 +18,9 @@ load_dotenv()
 
 app = FastAPI(title="Backend Dompet Lapangan")
 
+@app.get("/")
+def home():
+    return {"status": "Mesin Backend Dompet Lapangan Aktif 🚀", "pesan": "Silakan akses lewat aplikasi Frontend!"}
 # --- CORS ---
 app.add_middleware(
     CORSMiddleware,
