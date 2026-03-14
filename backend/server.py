@@ -1,25 +1,22 @@
+import os
+import io
+from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException, status, Depends, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr
 from pymongo import MongoClient
 from passlib.context import CryptContext
-from datetime import datetime, timedelta
 from bson.objectid import ObjectId
 import jwt
-import os
-import io
 import xlsxwriter
 from dotenv import load_dotenv
+from supabase import create_client, Client
 
 load_dotenv()
 
 app = FastAPI(title="Backend Dompet Lapangan")
-
-os.makedirs("uploads", exist_ok=True)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # --- CORS ---
 app.add_middleware(
@@ -30,7 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- DATABASE ---
+# --- DATABASE MONGODB ---
 MONGO_URL = os.getenv("MONGO_URL")
 client = MongoClient(MONGO_URL)
 db = client["dompet_lapangan"]
@@ -39,6 +36,16 @@ events_collection = db["events"]
 categories_collection = db["categories"]
 expenses_collection = db["expenses"]
 incomes_collection = db["incomes"]
+
+# --- STORAGE SUPABASE (GUDANG FOTO) ---
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+# Cek apakah URL dan Key tersedia agar tidak error
+if SUPABASE_URL and SUPABASE_KEY:
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+else:
+    supabase = None
 
 # --- PENGATURAN PASSWORD & TOKEN ---
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -69,7 +76,6 @@ class CategoryCreate(BaseModel):
     name: str
     allocated_amount: int
 
-# Model baru untuk Edit Pagu
 class CategoryUpdate(BaseModel):
     allocated_amount: int
 
@@ -140,25 +146,25 @@ def get_categories(event_id: str, current_user: dict = Depends(get_current_user)
     cursor = categories_collection.find({"event_id": event_id}).sort("created_at", 1)
     return [{"id": str(cat["_id"]), **{k: v for k, v in cat.items() if k != "_id"}} for cat in cursor]
 
-# Endpoint baru untuk update/edit nominal pagu kategori
 @app.put("/api/categories/{category_id}")
 def update_category_budget(category_id: str, data: CategoryUpdate, current_user: dict = Depends(get_current_user)):
-    categories_collection.update_one(
-        {"_id": ObjectId(category_id)}, 
-        {"$set": {"allocated_amount": data.allocated_amount}}
-    )
+    categories_collection.update_one({"_id": ObjectId(category_id)}, {"$set": {"allocated_amount": data.allocated_amount}})
     return {"message": "Pagu kategori berhasil diperbarui"}
 
-# --- ENDPOINT TRANSAKSI (DENGAN UPLOAD FOTO) ---
+# --- ENDPOINT TRANSAKSI (DENGAN UPLOAD SUPABASE) ---
 @app.post("/api/expenses")
 def create_expense(event_id: str = Form(...), category_id: str = Form(...), amount: int = Form(...), description: str = Form(...), date: str = Form(...), receipt: UploadFile = File(None), current_user: dict = Depends(get_current_user)):
     receipt_url = None
-    if receipt:
+    if receipt and supabase:
         ext = receipt.filename.split('.')[-1]
         filename = f"exp_{datetime.now().strftime('%Y%m%d%H%M%S')}.{ext}"
-        filepath = os.path.join("uploads", filename)
-        with open(filepath, "wb") as f: f.write(receipt.file.read())
-        receipt_url = f"/uploads/{filename}"
+        
+        # Baca isi file dan kirim ke Supabase
+        file_bytes = receipt.file.read()
+        supabase.storage.from_("receipts").upload(filename, file_bytes, {"content-type": receipt.content_type})
+        
+        # Buat link publik untuk foto tersebut
+        receipt_url = f"{SUPABASE_URL}/storage/v1/object/public/receipts/{filename}"
 
     result = expenses_collection.insert_one({"event_id": event_id, "category_id": category_id, "amount": amount, "description": description, "date": date, "receipt_url": receipt_url, "created_at": datetime.utcnow()})
     categories_collection.update_one({"_id": ObjectId(category_id)}, {"$inc": {"spent_amount": amount}})
@@ -172,12 +178,13 @@ def get_expenses(event_id: str, current_user: dict = Depends(get_current_user)):
 @app.post("/api/incomes")
 def create_income(event_id: str = Form(...), amount: int = Form(...), source: str = Form(...), description: str = Form(...), date: str = Form(...), receipt: UploadFile = File(None), current_user: dict = Depends(get_current_user)):
     receipt_url = None
-    if receipt:
+    if receipt and supabase:
         ext = receipt.filename.split('.')[-1]
         filename = f"inc_{datetime.now().strftime('%Y%m%d%H%M%S')}.{ext}"
-        filepath = os.path.join("uploads", filename)
-        with open(filepath, "wb") as f: f.write(receipt.file.read())
-        receipt_url = f"/uploads/{filename}"
+        
+        file_bytes = receipt.file.read()
+        supabase.storage.from_("receipts").upload(filename, file_bytes, {"content-type": receipt.content_type})
+        receipt_url = f"{SUPABASE_URL}/storage/v1/object/public/receipts/{filename}"
 
     result = incomes_collection.insert_one({"event_id": event_id, "amount": amount, "source": source, "description": description, "date": date, "receipt_url": receipt_url, "created_at": datetime.utcnow()})
     return {"message": "Pemasukan berhasil dicatat", "id": str(result.inserted_id)}
