@@ -8,3 +8,4 @@ pyjwt
 xlsxwriter
 supabase
 python-multipart
+email-validator
