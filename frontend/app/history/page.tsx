@@ -45,14 +45,14 @@ export default function HistoryPage() {
         const token = localStorage.getItem("token");
         const headers = { Authorization: `Bearer ${token}` };
 
-        const catRes = await axios.get(`https://financial-web-xi.vercel.app/api/categories/${activeEvent.id}`, { headers });
+        const catRes = await axios.get(`https://financial-web-pi.vercel.app/api/categories/${activeEvent.id}`, { headers });
         const categories = catRes.data;
         const categoryMap = categories.reduce((acc: any, cat: any) => {
           acc[cat.id] = cat.name;
           return acc;
         }, {});
 
-        const expRes = await axios.get(`https://financial-web-xi.vercel.app/api/expenses/${activeEvent.id}`, { headers });
+        const expRes = await axios.get(`https://financial-web-pi.vercel.app/api/expenses/${activeEvent.id}`, { headers });
         const expenses = expRes.data.map((exp: any) => ({
           ...exp,
           type: 'expense',
@@ -60,7 +60,7 @@ export default function HistoryPage() {
           timestamp: new Date(exp.created_at).getTime()
         }));
 
-        const incRes = await axios.get(`https://financial-web-xi.vercel.app/api/incomes/${activeEvent.id}`, { headers });
+        const incRes = await axios.get(`https://financial-web-pi.vercel.app/api/incomes/${activeEvent.id}`, { headers });
         const incomes = incRes.data.map((inc: any) => ({
           ...inc,
           type: 'income',
@@ -89,7 +89,7 @@ export default function HistoryPage() {
     if (!activeEvent) return;
     setDownloading(true);
     try {
-      const response = await axios.get(`https://financial-web-xi.vercel.app/api/export/${activeEvent.id}`, { responseType: 'blob' });
+      const response = await axios.get(`https://financial-web-pi.vercel.app/api/export/${activeEvent.id}`, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;

@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (token) {
         try {
           // Tanya ke backend: "Halo, ini tokenku, aku siapa ya?"
-          const response = await axios.get("https://financial-web-xi.vercel.app/api/auth/me", {
+          const response = await axios.get("https://financial-web-pi.vercel.app/api/auth/me", {
             headers: { Authorization: `Bearer ${token}` }
           });
           // Jika backend membalas, simpan data usernya

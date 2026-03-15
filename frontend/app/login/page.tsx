@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useContext } from "react";
+import Link from "next/link"; // <--- TAMBAHAN IMPORT UNTUK PINDAH HALAMAN
 import axios from "axios";
 import { Wallet, Loader2, AlertCircle } from "lucide-react";
 
@@ -13,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { AuthContext } from "../context/AuthContext";
 
 export default function LoginPage() {
-  const { login } = useContext(AuthContext); // Ambil fungsi login dari brankas ingatan
+  const { login } = useContext(AuthContext); 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,8 +26,8 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // Tembak API Login (pastikan port 8000)
-      const response = await axios.post("https://financial-web-xi.vercel.app/api/auth/login", {
+      // Tembak API Login ke Vercel
+      const response = await axios.post("https://financial-web-pi.vercel.app/api/auth/login", {
         email: email,
         password: password
       });
@@ -102,6 +103,16 @@ export default function LoginPage() {
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Masuk"}
               </Button>
             </form>
+
+            {/* --- TAMBAHAN TOMBOL KE HALAMAN REGISTER --- */}
+            <div className="mt-6 text-center text-sm text-slate-500">
+              Belum punya akun?{" "}
+              <Link href="/register" className="text-blue-600 font-semibold hover:underline transition-all">
+                Daftar di sini
+              </Link>
+            </div>
+            {/* ------------------------------------------- */}
+
           </CardContent>
         </Card>
 

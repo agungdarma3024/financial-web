@@ -27,7 +27,7 @@ export default function RegisterPage() {
 
     try {
       // Pastikan port sesuai dengan backend-mu (8000)
-      await axios.post("https://financial-web-xi.vercel.app/api/auth/register", {
+      await axios.post("https://financial-web-pi.vercel.app/api/auth/register", {
         name: name,
         email: email,
         password: password

@@ -53,10 +53,10 @@ export default function DashboardPage() {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
 
-      const catRes = await axios.get(`https://financial-web-xi.vercel.app/api/categories/${activeEvent.id}`, { headers });
+      const catRes = await axios.get(`https://financial-web-pi.vercel.app/api/categories/${activeEvent.id}`, { headers });
       setCategories(catRes.data);
 
-      const incRes = await axios.get(`https://financial-web-xi.vercel.app/api/incomes/${activeEvent.id}`, { headers });
+      const incRes = await axios.get(`https://financial-web-pi.vercel.app/api/incomes/${activeEvent.id}`, { headers });
       setIncomes(incRes.data);
 
     } catch (error) {
@@ -85,7 +85,7 @@ export default function DashboardPage() {
       const token = localStorage.getItem("token");
       const nominal = parseInt(newCashAmount);
       
-      await axios.put(`https://financial-web-xi.vercel.app/api/events/${activeEvent!.id}/cash`, 
+      await axios.put(`https://financial-web-pi.vercel.app/api/events/${activeEvent!.id}/cash`, 
         { initial_cash: nominal }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -118,7 +118,7 @@ export default function DashboardPage() {
       const token = localStorage.getItem("token");
       const nominal = parseInt(editAmount);
 
-      await axios.put(`https://financial-web-xi.vercel.app/api/categories/${editingCategory.id}`,
+      await axios.put(`https://financial-web-pi.vercel.app/api/categories/${editingCategory.id}`,
         { allocated_amount: nominal },
         { headers: { Authorization: `Bearer ${token}` } }
       );

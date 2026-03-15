@@ -31,7 +31,7 @@ export default function EventsPage() {
   const fetchEvents = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://financial-web-xi.vercel.app/api/events", {
+      const response = await axios.get("https://financial-web-pi.vercel.app/api/events", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setEvents(response.data);
@@ -52,7 +52,7 @@ export default function EventsPage() {
     setSaving(true);
     try {
       const token = localStorage.getItem("token");
-      await axios.post("https://financial-web-xi.vercel.app/api/events", 
+      await axios.post("https://financial-web-pi.vercel.app/api/events", 
         { name: newName, initial_cash: parseInt(newCash) },
         { headers: { Authorization: `Bearer ${token}` } }
       );
