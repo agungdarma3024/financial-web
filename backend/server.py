@@ -1,6 +1,7 @@
 import os
 import io
 from datetime import datetime, timedelta
+from typing import Optional  # <--- Ini kunci rahasia yang menyelamatkan kita
 from fastapi import FastAPI, HTTPException, status, Depends, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,7 +46,6 @@ incomes_collection = db["incomes"]
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-# Cek apakah URL dan Key tersedia agar tidak error
 if SUPABASE_URL and SUPABASE_KEY:
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 else:
@@ -58,7 +58,7 @@ SECRET_KEY = os.getenv("JWT_SECRET", "kunci_rahasia_dompet_lapangan_super_aman")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 7
 
-# --- MODEL DATA (EmailStr sudah diganti jadi str biasa) ---
+# --- MODEL DATA ---
 class UserRegister(BaseModel):
     name: str
     email: str
@@ -157,7 +157,7 @@ def update_category_budget(category_id: str, data: CategoryUpdate, current_user:
 
 # --- ENDPOINT TRANSAKSI (DENGAN UPLOAD SUPABASE) ---
 @app.post("/api/expenses")
-def create_expense(event_id: str = Form(...), category_id: str = Form(...), amount: int = Form(...), description: str = Form(...), date: str = Form(...), receipt: UploadFile = File(None), current_user: dict = Depends(get_current_user)):
+def create_expense(event_id: str = Form(...), category_id: str = Form(...), amount: int = Form(...), description: str = Form(...), date: str = Form(...), receipt: Optional[UploadFile] = File(None), current_user: dict = Depends(get_current_user)):
     receipt_url = None
     if receipt and supabase:
         ext = receipt.filename.split('.')[-1]
@@ -177,7 +177,7 @@ def get_expenses(event_id: str, current_user: dict = Depends(get_current_user)):
     return [{"id": str(doc["_id"]), **{k: v for k, v in doc.items() if k != "_id"}} for doc in cursor]
 
 @app.post("/api/incomes")
-def create_income(event_id: str = Form(...), amount: int = Form(...), source: str = Form(...), description: str = Form(...), date: str = Form(...), receipt: UploadFile = File(None), current_user: dict = Depends(get_current_user)):
+def create_income(event_id: str = Form(...), amount: int = Form(...), source: str = Form(...), description: str = Form(...), date: str = Form(...), receipt: Optional[UploadFile] = File(None), current_user: dict = Depends(get_current_user)):
     receipt_url = None
     if receipt and supabase:
         ext = receipt.filename.split('.')[-1]
