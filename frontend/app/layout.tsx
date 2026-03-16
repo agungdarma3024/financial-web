@@ -10,7 +10,23 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Dompet Lapangan",
-  description: "Aplikasi pencatatan keuangan kegiatan lapangan",
+  description: "Aplikasi pencatatan keuangan kegiatan lapangan yang transparan dan aman.",
+  openGraph: {
+    title: "Dompet Lapangan | Anti Bocor, Anti Ribet",
+    description: "Catat transaksi dan upload bukti struk langsung dari lapangan. Transparan, aman, dan siap diaudit kapan saja.",
+    url: "https://financial-web-pi.vercel.app",
+    siteName: "Dompet Lapangan",
+    images: [
+      {
+        url: "/preview.jpg", // Pastikan file gambar bernama preview.jpg ada di dalam folder 'public'
+        width: 1200,
+        height: 630,
+        alt: "Tampilan Dashboard Dompet Lapangan",
+      },
+    ],
+    locale: "id_ID",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
