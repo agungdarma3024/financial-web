@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     siteName: "Dompet Lapangan",
     images: [
       {
-        url: "/preview.jpg", // Pastikan file gambar bernama preview.jpg ada di dalam folder 'public'
+        url: "../public/preview.png", // Pastikan file gambar bernama preview.png ada di dalam folder 'public'
         width: 1200,
         height: 630,
         alt: "Tampilan Dashboard Dompet Lapangan",
